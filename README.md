@@ -1,5 +1,9 @@
 # PDF RAG Assistant
 
+## Live Demo
+
+https://rag-pdf-chatbot-vercetius.streamlit.app/
+
 An end-to-end Retrieval-Augmented Generation (RAG) application that lets users upload a PDF and ask questions grounded in the document.
 
 The system combines semantic embeddings, FAISS vector search, Cross-Encoder reranking and LLM generation to produce answers with page citations and retrieved evidence.
