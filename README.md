@@ -101,6 +101,24 @@ The generation layer is instructed to:
 - refuse unsupported questions
 - avoid inventing citations
 
+## Design Decisions and Trade-offs
+
+The retrieval pipeline combines dense vector search with cross-encoder reranking rather than relying on a single retrieval method.
+
+**Sentence embeddings provide efficient semantic retrieval.** Documents can be indexed once and searched quickly with FAISS, making this approach practical for interactive use. The trade-off is that embedding similarity alone can return passages that are broadly related but not the best evidence for a specific question.
+
+**Cross-encoder reranking improves final relevance.** The reranker evaluates each query and candidate passage together, providing more precise ranking than vector similarity alone. Because this is computationally more expensive, it is applied only to a small set of candidates returned by FAISS.
+
+**Chunk overlap reduces boundary information loss.** Relevant information that spans adjacent sections is less likely to disappear during chunking. The trade-off is additional duplicated text in the index.
+
+**Normalized embeddings with inner-product search approximate cosine similarity.** This keeps retrieval simple and efficient while preserving semantic similarity behavior.
+
+**Grounded generation is separated from retrieval.** The language model receives only the retrieved passages and is instructed to answer from that evidence. This reduces unsupported generation but does not guarantee factual correctness if retrieval itself fails.
+
+**Page metadata is preserved throughout the pipeline** so answers can reference their source pages and the user can inspect the retrieved evidence.
+
+The current design favors transparency and retrieval quality over minimum latency. For larger-scale document collections, persistent indexing, batching, and more scalable retrieval infrastructure would be required.
+
 ## Retrieval Evaluation
 
 The retrieval pipeline was evaluated on NASA's *Aeronautics: An Educator's Guide*.
@@ -292,7 +310,6 @@ Accuracy: 100.0%
 - asynchronous document processing
 - support for additional file types
 - Docker deployment
-- CI/CD
 - monitoring and usage analytics
 
 ## Security
